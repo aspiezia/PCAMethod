@@ -1,2 +1,0 @@
-ALL_PACKAGES += Extractors/RecoExtractor
-subdirs_src_Extractors_RecoExtractor := src_Extractors_RecoExtractor_python src_Extractors_RecoExtractor_src src_Extractors_RecoExtractor_test

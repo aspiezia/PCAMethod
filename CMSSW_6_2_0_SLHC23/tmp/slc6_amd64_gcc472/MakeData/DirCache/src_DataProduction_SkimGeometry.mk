@@ -1,2 +1,0 @@
-ALL_PACKAGES += DataProduction/SkimGeometry
-subdirs_src_DataProduction_SkimGeometry := src_DataProduction_SkimGeometry_python

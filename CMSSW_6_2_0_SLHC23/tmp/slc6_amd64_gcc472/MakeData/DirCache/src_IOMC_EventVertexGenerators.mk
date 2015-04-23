@@ -1,2 +1,0 @@
-ALL_PACKAGES += IOMC/EventVertexGenerators
-subdirs_src_IOMC_EventVertexGenerators := src_IOMC_EventVertexGenerators_doc src_IOMC_EventVertexGenerators_interface src_IOMC_EventVertexGenerators_python src_IOMC_EventVertexGenerators_src src_IOMC_EventVertexGenerators_test

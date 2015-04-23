@@ -1,4 +1,0 @@
-tmp/slc6_amd64_gcc472/src/IOMC/EventVertexGenerators/test/VtxSmearingBoostTest/BoostTester.o: \
- src/IOMC/EventVertexGenerators/test/BoostTester.cc \
- src/IOMC/EventVertexGenerators/test/BoostTester.h \
-
