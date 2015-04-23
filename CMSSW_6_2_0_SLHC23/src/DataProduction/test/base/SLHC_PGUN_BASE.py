@@ -9,7 +9,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('Configuration/StandardSequences/VtxSmearedNoSmear_cff')
+#process.load('Configuration/StandardSequences/VtxSmearedNoSmear_cff')
+process.load('IOMC.EventVertexGenerators.VtxSmearedFlatD0_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -52,24 +53,41 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed     = NSEEDB
 process.RandomNumberGeneratorService.g4SimHits.initialSeed      = NSEEDC
 process.RandomNumberGeneratorService.mix.initialSeed            = NSEEDD
 
-process.generator = cms.EDProducer("FlatRandomPtGunProducer",
-    PGunParameters = cms.PSet(
-        MaxPt = cms.double(PTMAX),
-        MinPt = cms.double(PTMIN),
-        PartID = cms.vint32(PTYPE),
-	XFlatSpread = cms.double(1.5),   # In mm
-	YFlatSpread = cms.double(1.5),   # In mm
-	ZFlatSpread = cms.double(150.),  # In mm
-	towerID= cms.int32(TRIGGERTOWER),  # Tower ID (put -1 for default params)	
-        MaxEta = cms.double(ETAMAX),
-	MaxPhi = cms.double(PHIMAX),
-        MinEta = cms.double(ETAMIN),
-        MinPhi = cms.double(PHIMIN)
-    ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(True),
-)
+#process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+#    PGunParameters = cms.PSet(
+#        MaxPt = cms.double(PTMAX),
+#        MinPt = cms.double(PTMIN),
+#        PartID = cms.vint32(PTYPE),
+#	XFlatSpread = cms.double(1.5),   # In mm
+#	YFlatSpread = cms.double(1.5),   # In mm
+#	ZFlatSpread = cms.double(150.),  # In mm
+#	towerID= cms.int32(TRIGGERTOWER),  # Tower ID (put -1 for default params)	
+#        MaxEta = cms.double(ETAMAX),
+#	MaxPhi = cms.double(PHIMAX),
+#        MinEta = cms.double(ETAMIN),
+#        MinPhi = cms.double(PHIMIN)
+#    ),
+#    Verbosity = cms.untracked.int32(0),
+#    AddAntiParticle = cms.bool(True),
+#)
 
+process.generator = cms.EDProducer("FlatRandomOneOverPtGunProducer",
+   PGunParameters = cms.PSet(
+       MinOneOverPt  = cms.double(1./PTMAX), # max Pt = 20 GeV
+       MaxOneOverPt  = cms.double(1./PTMIN), # min Pt = 1 GeV
+       PartID = cms.vint32(PTYPE),
+       XFlatSpread = cms.double(1.5),   # In mm
+       YFlatSpread = cms.double(1.5),   # In mm
+       ZFlatSpread = cms.double(150.),  # In mm
+       towerID= cms.int32(TRIGGERTOWER),  # Tower ID (put -1 for default params)
+       MaxEta = cms.double(ETAMAX),
+       MaxPhi = cms.double(PHIMAX),
+       MinEta = cms.double(ETAMIN),
+       MinPhi = cms.double(PHIMIN)
+   ),
+   Verbosity = cms.untracked.int32(0),
+   AddAntiParticle = cms.bool(True),
+)
 # Output definition
 
 process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",

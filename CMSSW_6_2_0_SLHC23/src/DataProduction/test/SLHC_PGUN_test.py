@@ -29,7 +29,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('Configuration/StandardSequences/VtxSmearedNoSmear_cff')
+process.load('IOMC.EventVertexGenerators.VtxSmearedFlatD0_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -64,22 +64,36 @@ process.RandomNumberGeneratorService.mix.initialSeed            = 4
 # Generate particle gun events
 
 # Generate particle gun events
-process.generator = cms.EDProducer("FlatRandomPtGunProducer",
-    PGunParameters = cms.PSet(
-        MinPt  = cms.double(1.),
-        MaxPt  = cms.double(20.),
-#	XFlatSpread = cms.double(1.5),  # In mm (requires an update 
-#	YFlatSpread = cms.double(1.5),  # In mm  of the official 
-#	ZFlatSpread = cms.double(150.), # In mm  PGUN code, see tutorial)
-#	towerID= cms.int32(-1),           # Trigger tower ID (put -1 for default params)
-        PartID = cms.vint32(-13),
+#process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+#    PGunParameters = cms.PSet(
+#        MinPt  = cms.double(1.),
+#        MaxPt  = cms.double(20.),
+##	XFlatSpread = cms.double(1.5),  # In mm (requires an update 
+##	YFlatSpread = cms.double(1.5),  # In mm  of the official 
+##	ZFlatSpread = cms.double(150.), # In mm  PGUN code, see tutorial)
+##	towerID= cms.int32(-1),           # Trigger tower ID (put -1 for default params)
+#        PartID = cms.vint32(-13),
+#        MinEta = cms.double(-3.5),
+#        MaxEta = cms.double(3.5),
+#        MinPhi = cms.double(0.),
+#	MaxPhi = cms.double(6.28)
+#    ),
+#    Verbosity = cms.untracked.int32(0),
+#    AddAntiParticle = cms.bool(True),
+#)
+
+process.generator = cms.EDProducer("FlatRandomOneOverPtGunProducer",
+   PGunParameters = cms.PSet(
+       MinOneOverPt  = cms.double(1./20.), # max Pt = 20 GeV
+       MaxOneOverPt  = cms.double(1./1.), # min Pt = 1 GeV
+       PartID = cms.vint32(-13),
         MinEta = cms.double(-3.5),
         MaxEta = cms.double(3.5),
         MinPhi = cms.double(0.),
 	MaxPhi = cms.double(6.28)
-    ),
-    Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(True),
+   ),
+   Verbosity = cms.untracked.int32(0),
+   AddAntiParticle = cms.bool(True),
 )
 
 
