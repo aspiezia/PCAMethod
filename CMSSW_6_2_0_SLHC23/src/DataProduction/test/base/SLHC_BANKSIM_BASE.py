@@ -67,7 +67,7 @@ process.generator = cms.EDProducer("FlatRandomOneOverPtGunProducer",
         MinPhi = cms.double(PHIMIN)
     ),
     Verbosity = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(False),
+    AddAntiParticle = cms.bool(True),
 )
 
 process.MIBextraction.doL1TT           = False

@@ -1,0 +1,2 @@
+ALL_PACKAGES += L1Trigger/TrackFindingAM
+subdirs_src_L1Trigger_TrackFindingAM := src_L1Trigger_TrackFindingAM_interface src_L1Trigger_TrackFindingAM_plugins src_L1Trigger_TrackFindingAM_python src_L1Trigger_TrackFindingAM_src src_L1Trigger_TrackFindingAM_test

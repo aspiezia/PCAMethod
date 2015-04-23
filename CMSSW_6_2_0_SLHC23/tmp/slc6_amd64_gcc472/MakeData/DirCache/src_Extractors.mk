@@ -1,0 +1,2 @@
+ALL_SUBSYSTEMS+=Extractors
+subdirs_src_Extractors = src_Extractors_RecoExtractor

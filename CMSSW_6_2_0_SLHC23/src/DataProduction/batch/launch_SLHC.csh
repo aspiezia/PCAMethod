@@ -48,7 +48,7 @@
 
 setenv LFC_HOST ''
 
-set STORAGEDIR  = "/afs/cern.ch/work/a/aspiezia/TrackTrigger/Production/CMSSW_6_2_0_SLHC23/src/DataProduction/batch"   # The directory where the data will be stored
+set STORAGEDIR  = "/afs/cern.ch/work/a/aspiezia/TrackTrigger/PCAMethod/CMSSW_6_2_0_SLHC23/src/DataProduction/batch"   # The directory where the data will be stored
 set STORAGEDIR2 = "$STORAGEDIR"                                                                             # The directory GRID-friendly address
 
 # The directory is the one containing the minbias events necessary for PU generation

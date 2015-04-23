@@ -1,0 +1,2 @@
+ALL_SUBSYSTEMS+=HL_LHC
+subdirs_src_HL_LHC = src_HL_LHC_IOPool_hack src_HL_LHC_ParticleGuns

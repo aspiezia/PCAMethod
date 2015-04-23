@@ -1,0 +1,2 @@
+ALL_SUBSYSTEMS+=DataProduction
+subdirs_src_DataProduction = src_DataProduction_SkimGeometry src_DataProduction_batch src_DataProduction_test

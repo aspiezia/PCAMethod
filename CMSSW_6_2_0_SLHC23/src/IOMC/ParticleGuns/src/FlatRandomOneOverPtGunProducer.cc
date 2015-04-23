@@ -22,11 +22,7 @@ FlatRandomOneOverPtGunProducer::FlatRandomOneOverPtGunProducer(const edm::Parame
   
   fMinOneOverPt = pgun_params.getParameter<double>("MinOneOverPt");
   fMaxOneOverPt = pgun_params.getParameter<double>("MaxOneOverPt");
-  fXFlatSpread  = pgun_params.getParameter<double>("XFlatSpread");
-  fYFlatSpread  = pgun_params.getParameter<double>("YFlatSpread");
-  fZFlatSpread  = pgun_params.getParameter<double>("ZFlatSpread");
-  towerID       = pgun_params.getParameter<int>("towerID");
-
+  
   produces<HepMCProduct>();
   produces<GenEventInfoProduct>();
 
@@ -50,56 +46,25 @@ void FlatRandomOneOverPtGunProducer::produce(Event &e, const EventSetup& es) {
   //
   fEvt = new HepMC::GenEvent() ;
    
-  double t_eta_min[6] = {-2.4,-1.7,-1.1,-0.4,0.4,1.2};
-  double t_eta_max[6] = {-1.2,-0.4,0.4,1.1,1.7,2.4};
-  double t_phi_min[8] = {-0.5,0.3,1.1,1.9,2.7,-2.9,-2.1,-1.3};
-  double t_phi_max[8] = {1.3,2.1,2.9,3.7,4.5,-1.1,-0.3,0.5};
-  
-  int eta_sec;
-  int phi_sec;
-  
-  // Special treatment to produce events in a given trigger tower
-  // according to the 8x6 config defined here:
-  //
-  // http://sviret.web.cern.ch/sviret/Welcome.php?n=CMS.HLLHCData
-  //
-  
-  if (towerID>=0 && towerID<=47)
-  {
-    phi_sec=towerID%8;
-    eta_sec=(towerID-phi_sec)/8;
-    
-    fMinEta = t_eta_min[eta_sec];
-    fMaxEta = t_eta_max[eta_sec];
-    fMinPhi = t_phi_min[phi_sec];
-    fMaxPhi = t_phi_max[phi_sec];
-  }
-
   // now actualy, cook up the event from PDGTable and gun parameters
   //
   // 1st, primary vertex
   //
-  double xpos     = fRandomGenerator->fire(-fXFlatSpread,fXFlatSpread);
-  double ypos     = fRandomGenerator->fire(-fYFlatSpread,fYFlatSpread);
-  double zpos     = fRandomGenerator->fire(-fZFlatSpread,fZFlatSpread);
-
-  double charge   = fRandomGenerator->fire(0,1);
-
-  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(xpos,ypos,zpos));
+  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0.,0.,0.));
 
   // loop over particles
   //
   int barcode = 1 ;
   for (unsigned int ip=0; ip<fPartIDs.size(); ++ip) {
 
+    //double xx     = fRandomGenerator->fire(0.0,1.0);
+    //double pt     = std::exp((1.-xx)*std::log(fMinOneOverPt)+
+    //			     xx*std::log(fMaxOneOverPt)) ;
     double pt     = fRandomGenerator->fire(fMinOneOverPt,fMaxOneOverPt);
     double eta    = fRandomGenerator->fire(fMinEta, fMaxEta) ;
     double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
     if (pt != 0) pt = 1./pt;
     int PartID = fPartIDs[ip] ;
-
-    if (charge<0.5) PartID = -PartID;
-
     const HepPDT::ParticleData* 
       PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
     double mass   = PData->mass().value() ;

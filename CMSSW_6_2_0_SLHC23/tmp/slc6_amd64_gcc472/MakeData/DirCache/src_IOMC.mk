@@ -1,0 +1,2 @@
+ALL_SUBSYSTEMS+=IOMC
+subdirs_src_IOMC = src_IOMC_ParticleGuns src_IOMC_EventVertexGenerators
