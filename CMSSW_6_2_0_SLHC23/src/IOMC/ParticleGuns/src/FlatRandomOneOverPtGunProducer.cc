@@ -50,6 +50,9 @@ void FlatRandomOneOverPtGunProducer::produce(Event &e, const EventSetup& es) {
   //
   // 1st, primary vertex
   //
+
+  double charge   = fRandomGenerator->fire(0,1);
+
   HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0.,0.,0.));
 
   // loop over particles
@@ -65,6 +68,9 @@ void FlatRandomOneOverPtGunProducer::produce(Event &e, const EventSetup& es) {
     double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
     if (pt != 0) pt = 1./pt;
     int PartID = fPartIDs[ip] ;
+    
+    if (charge<0.5) PartID = -PartID;
+
     const HepPDT::ParticleData* 
       PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
     double mass   = PData->mass().value() ;
