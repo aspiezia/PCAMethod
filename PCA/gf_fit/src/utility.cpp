@@ -38,10 +38,46 @@ namespace
         
     return false;
   }
+
+  bool check_charge_sign (int chargesign, std::set<int> & pidset)
+  {
+    if (pidset.size() == 1)
+    {
+      if (chargesign == 0)
+        return true;
+
+      // make it clear 
+      if ((chargesign == -1) && (*pidset.begin() < 0))
+        return true;
+
+      if ((chargesign == 1) && (*pidset.begin() > 0))
+        return true;
+    }
+
+    return false;
+  }
 }
 
 
 using namespace pca;
+
+void pca::tokenize (const std::string & str, std::vector<std::string> & tokens,
+        const std::string & delimiters)
+{
+  // Skip delimiters at beginning.
+  std::string::size_type lastPos = 
+  str.find_first_not_of(delimiters, 0);
+  std::string::size_type pos = 
+  str.find_first_of(delimiters, lastPos);
+                 
+  while (std::string::npos != pos || 
+         std::string::npos != lastPos)
+  {
+    tokens.push_back(str.substr(lastPos, pos - lastPos));
+    lastPos = str.find_first_not_of(delimiters, pos);
+    pos = str.find_first_of(delimiters, lastPos);
+  }
+}
 
 double pca::cot (double x)
 {
@@ -279,7 +315,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      int num_of_ent, bool useonlyeven, bool useonlyodd,
      bool rzplane, bool rphiplane, 
      double etamin, double etamax, 
-     bool chargeoverpt)
+     bool chargeoverpt, int chargesign, 
+     bool excludesmodule, bool usealsod0)
 {
   int extdim = 9;
   std::string line;
@@ -340,10 +377,13 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
                                               // pid is particle id (charge)
       }
 
+      if (excludesmodule)
+        if (j > 2)
+          continue;
 
       pidset.insert(pid);
 
-      if (pid >= 0)
+      if (check_charge_sign(chargesign, pidset))
       {
         if (check_to_read (useonlyeven,useonlyodd,i))
         {
@@ -392,7 +432,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
       }
       else if (rphiplane)
       {
-        if (*(pidset.begin()) >= 0)
+        if (check_charge_sign(chargesign, pidset))
         {
           paramread(counter, SPLIT_PHIIDX) = phiread;
           // use 1/pt
@@ -411,10 +451,13 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
           }
           else
             paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
+
+          if (usealsod0)
+            paramread(counter, SPLIT_D0IDX) = d0read;
         }
       }
 
-      if (*(pidset.begin()) >= 0.0)
+      if (check_charge_sign(chargesign, pidset))
         ++counter;
     }
   }

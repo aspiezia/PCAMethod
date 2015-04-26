@@ -38,14 +38,19 @@ void usage (char * name)
 {
   std::cerr << "usage: " << name << " [options] coordinatesfile " << std::endl;
   std::cerr << std::endl;
-  std::cerr << " -h, --help                 : display this help and exit" << std::endl;
-  std::cerr << " -v, --version              : print version and exit" << std::endl;
-  std::cerr << " -j, --jump-tracks          : generate the constants using only even tracks" << std::endl;
-  std::cerr << " -p, --dump-allcoords       : dump all stub coordinates to a file" << std::endl;
-  std::cerr << " -z, --rz-plane             : use rz plane view" << std::endl;
-  std::cerr << " -r, --rphi-plane           : use r-phi plane view" << std::endl;
-  std::cerr << " -e, --use-charge           : read charge from coordinatesfile, and use it if" << std::endl; 
-  std::cerr << "                              rphi-plane has been selected" << std::endl; 
+  std::cerr << " -h, --help                      : display this help and exit" << std::endl;
+  std::cerr << " -v, --version                   : print version and exit" << std::endl;
+  std::cerr << " -j, --jump-tracks               : generate the constants using only even tracks" << std::endl;
+  std::cerr << " -p, --dump-allcoords            : dump all stub coordinates to a file" << std::endl;
+  std::cerr << " -z, --rz-plane                  : use rz plane view" << std::endl;
+  std::cerr << " -r, --rphi-plane                : use r-phi plane view" << std::endl;
+  std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile, by default " << std::endl;
+  std::cerr << "                                   we will  use it if rphi-plane has been selected" << std::endl; 
+  std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle " << std::endl;
+  std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
+  std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates inseatd of 12 " 
+    << std::endl;
+  std::cerr << " -d, --use-d0                    : use also d0 param in r-phi plane " << std::endl;
 
   exit(1);
 }
@@ -116,7 +121,16 @@ int main (int argc, char ** argv)
   bool printallcoords = false;
   bool rzplane = false;
   bool rphiplane = false;
-  bool usecharge = false;
+  bool usecharge = true;
+  bool usealsod0 = false;
+
+  int chargesign = 0;
+
+  double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
+
+  std::vector<std::string> tokens;
+
+  bool excludesmodule = false;
 
   while (1)
   {
@@ -128,17 +142,48 @@ int main (int argc, char ** argv)
       {"dump-allcoords", 0, NULL, 'p'},
       {"rz-plane", 0, NULL, 'z'},
       {"rphi-plane", 0, NULL, 'r'},
-      {"use-charge", 0, NULL, 'e'},
+      {"not-use-charge", 0, NULL, 'e'},
+      {"charge-sign", 1, NULL, 'g'},
+      {"eta-range", 1, NULL, 't'},
+      {"exclude-s-module", 0, NULL, 'x'},
+      {"use-d0", 0, NULL, 'd'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "ehvjpzr", long_options, &option_index);
+    c = getopt_long (argc, argv, "dxehvjpzrg:t:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'd':
+        usealsod0 = true;
+        break;
+      case 'x':
+        excludesmodule = true;
+        break;
+      case 't':
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+
+        etamin = atof(tokens[0].c_str());
+        etamax = atof(tokens[1].c_str());
+
+        break;
+      case 'g':
+        if (strlen(optarg) > 1)
+          usage (argv[0]);
+        
+        if (*optarg == '-')
+          chargesign = -1;
+        else if (*optarg == '+')
+          chargesign = +1;
+        else
+          usage (argv[0]);
+
+        break;
       case 'z':
         rzplane = true;
         break;
@@ -159,7 +204,7 @@ int main (int argc, char ** argv)
         exit(1);
         break;
       case 'e':
-        usecharge = true;
+        usecharge = false;
         break;
       default:
         usage (argv[0]);
@@ -178,9 +223,16 @@ int main (int argc, char ** argv)
   }
 
   // R-z
-  fitter.set_coordim (2*6);
+  if (excludesmodule && rzplane)
+    fitter.set_coordim (2*3);
+  else
+    fitter.set_coordim (2*6);
 
-  fitter.set_paramdim(2);
+  if (usealsod0 && rphiplane)
+    fitter.set_paramdim(3);
+  else
+    fitter.set_paramdim(2);
+
   if (rzplane)
   {
     if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha)"))
@@ -200,6 +252,15 @@ int main (int argc, char ** argv)
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
+    }
+
+    if (usealsod0)
+    {
+      if (!fitter.set_paramidx(SPLIT_D0IDX, "d0"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
     }
 
     if (usecharge)
@@ -256,22 +317,30 @@ int main (int argc, char ** argv)
 
   if (!pca::reading_from_file_split (fitter, filename, paramin, coordin, 
          num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
-         ETAMIN, ETAMAX, usecharge))
+         etamin, etamax, usecharge, chargesign, excludesmodule, 
+         usealsod0))
     return EXIT_FAILURE;
 
   std::cout << "Using " << paramin.n_rows << " tracks" << std::endl;
 
   std::cout << "Writing parameters to files" << std::endl;
 
+  std::ostringstream cfname, qfname; 
+
   if (rzplane)
   {
     pca::write_to_file("cottetha.txt", paramin, SPLIT_COTTETHAIDX);
     pca::write_to_file("z0.txt", paramin, SPLIT_Z0IDX);
+    cfname << "c.rz.bin";
+    qfname << "q.rz.bin";
+
   }
   else if (rphiplane)
   {
     pca::write_to_file("phi.txt", paramin, SPLIT_PHIIDX);
     pca::write_to_file("oneoverpt.txt", paramin, SPLIT_ONEOVERPTIDX);
+    cfname << "c.rphi.bin";
+    qfname << "q.rphi.bin";
   }
 
   if (printallcoords)
@@ -286,7 +355,7 @@ int main (int argc, char ** argv)
   }
 
   perform_main_computation (coordin, paramin,
-      "c.bin", "q.bin", fitter);
+      cfname.str(), qfname.str(), fitter);
 
   return EXIT_SUCCESS;
 }

@@ -2,6 +2,8 @@
 #define _PCAFFUNCTYPE_INC_
 
 #include <armadillo>
+
+#include <string>
 #include <vector>
 #include <map>
 
@@ -17,13 +19,14 @@
 
 #define SPLIT_ONEOVERPTIDX 0
 #define SPLIT_PHIIDX 1
-
-#define ETAMIN -0.800e0
-#define ETAMAX -0.100e0
+#define SPLIT_D0IDX 2
 
 namespace pca
 {
   int numofline (const char * fname);
+
+  void tokenize (const std::string & str, std::vector<std::string> & tokens,
+      const std::string & delimiters = " ");
 
   void write_to_file (const char * fname, 
       const arma::mat & vec, int idx);
@@ -51,7 +54,8 @@ namespace pca
           arma::mat & paramin, arma::mat & coordin,
           int num_of_ent, bool useonlyeven, bool useonlyodd, 
           bool rzread, bool rphiread, double etamin,
-          double etamax, bool chargeoverpt);
+          double etamax, bool chargeoverpt, int chargesign,
+          bool excludesmodule, bool usealsod0);
 
   bool file_exists(const std::string& filename);
 
