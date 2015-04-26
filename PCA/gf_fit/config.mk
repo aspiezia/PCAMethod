@@ -25,8 +25,8 @@ CERN = yes
 #LIBS += -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
 CFLAGS =
 LIBS =
-ARMALIBPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4
-ARMAINCPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4/include
+ARMALIBPATH = /afs/cern.ch/user/a/aspiezia/armadillo-3.930.4
+ARMAINCPATH = /afs/cern.ch/user/a/aspiezia/armadillo-3.930.4/include
 
 CC = gcc
 CXX = g++
